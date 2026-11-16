@@ -1,9 +1,10 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import ArticleCard from '../components/ArticleCard';
 import Pagination from '../components/Pagination';
 import { usePageTitle } from '../hooks/usePageTitle';
-import { filterArticles } from '../data/articles';
+import { articles, filterArticles } from '../data/articles';
+import { fetchPublishedList } from '../lib/published';
 import { PAGE_SIZE, categories } from '../data/site';
 
 /**
@@ -18,9 +19,32 @@ export default function Blog() {
   const sort = params.get('sort') === 'oldest' ? 'oldest' : 'newest';
   const requestedPage = Math.max(1, Number(params.get('page')) || 1);
 
+  const [extra, setExtra] = useState([]);
+  useEffect(() => {
+    fetchPublishedList().then((posts) => {
+      const known = new Set(articles.map((item) => item.slug));
+      setExtra(
+        posts
+          .filter((post) => post?.slug && !known.has(post.slug))
+          .map((post) => ({
+            slug: post.slug,
+            title: post.title,
+            excerpt: post.excerpt || '',
+            category: post.category || 'Reviews',
+            tags: Array.isArray(post.keywords) ? post.keywords : [],
+            date: post.date,
+            author: { name: post.author || 'UncoverLab', role: 'Editor' },
+            readMinutes: post.readTime || 1,
+            image: post.image || '',
+            imageAlt: post.title,
+            sections: [],
+          })),
+      );
+    });
+  }, []);
   const filtered = useMemo(
-    () => filterArticles({ query, category, sort }),
-    [query, category, sort],
+    () => filterArticles({ query, category, sort, source: [...extra, ...articles] }),
+    [query, category, sort, extra],
   );
   const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const page = Math.min(requestedPage, pageCount);

@@ -628,9 +628,9 @@ export function sortArticles(list, sort = 'newest') {
  * @param {{ query?: string, category?: string, sort?: 'newest' | 'oldest' }} options
  * @returns {Article[]}
  */
-export function filterArticles({ query = '', category = 'All', sort = 'newest' } = {}) {
+export function filterArticles({ query = '', category = 'All', sort = 'newest', source } = {}) {
   const needle = query.trim().toLowerCase();
-  const matched = articles.filter((article) => {
+  const matched = (source || articles).filter((article) => {
     const categoryOk = category === 'All' || article.category === category;
     if (!categoryOk) return false;
     if (!needle) return true;

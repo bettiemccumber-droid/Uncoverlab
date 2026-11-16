@@ -1,9 +1,11 @@
+import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import ArticleBody from '../components/ArticleBody';
 import ArticleCard from '../components/ArticleCard';
 import SocialWidget from '../components/SocialWidget';
 import { usePageTitle } from '../hooks/usePageTitle';
 import { getArticleBySlug, getRelatedArticles } from '../data/articles';
+import { fetchPublishedArticle } from '../lib/published';
 import { formatDate, formatReadTime } from '../utils/format';
 
 /**
@@ -12,9 +14,42 @@ import { formatDate, formatReadTime } from '../utils/format';
  */
 export default function Article() {
   const { slug = '' } = useParams();
-  const article = getArticleBySlug(slug);
-  usePageTitle(article ? article.title : 'Story not found');
+  const local = getArticleBySlug(slug);
+  const [remote, setRemote] = useState(null);
+  const [checked, setChecked] = useState(Boolean(local));
 
+  useEffect(() => {
+    if (local) return undefined;
+    let cancel = false;
+    fetchPublishedArticle(slug).then((post) => {
+      if (cancel) return;
+      setRemote(post);
+      setChecked(true);
+    });
+    return () => {
+      cancel = true;
+    };
+  }, [local, slug]);
+
+  usePageTitle(local ? local.title : remote?.title || 'Story not found');
+
+  if (!local && !checked) return null;
+  if (!local && remote) {
+    return (
+      <article className="article-page">
+        <header className="article-hero">
+          <div className="wrap article-intro">
+            <h1>{remote.title}</h1>
+            <p className="lede">{remote.excerpt}</p>
+          </div>
+        </header>
+        <div className="wrap article-read">
+          <div className="prose" dangerouslySetInnerHTML={{ __html: remote.bodyHtml || '' }} />
+        </div>
+      </article>
+    );
+  }
+  const article = local;
   if (!article) {
     return (
       <section className="section">
