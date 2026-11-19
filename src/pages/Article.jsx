@@ -39,12 +39,44 @@ export default function Article() {
       <article className="article-page">
         <header className="article-hero">
           <div className="wrap article-intro">
-            <h1>{remote.title}</h1>
-            <p className="lede">{remote.excerpt}</p>
+            <p className="breadcrumb">
+              <Link to="/">Home</Link>
+              <span aria-hidden="true">/</span>
+              <Link to="/blog">Blog</Link>
+              <span aria-hidden="true">/</span>
+              <span>{remote.category || 'Product Reviews'}</span>
+            </p>
+            <div className="article-intro-grid">
+              <div>
+                <p className="meta-row">
+                  <span className="category">{remote.category || 'Product Reviews'}</span>
+                  {remote.date ? <time dateTime={remote.date}>{formatDate(remote.date)}</time> : null}
+                  <span>{formatReadTime(remote.readTime || 1)}</span>
+                </p>
+                <h1>{remote.title}</h1>
+              </div>
+              <div className="article-intro-side">
+                {remote.excerpt ? <p className="lede">{remote.excerpt}</p> : null}
+                <div className="article-meta">
+                  <p className="byline">
+                    <span>
+                      {remote.author || 'UncoverLab'}
+                      <small>Editor</small>
+                    </span>
+                  </p>
+                  <SocialWidget variant="icons" title="Share" />
+                </div>
+              </div>
+            </div>
           </div>
+          {remote.image ? (
+            <figure className="article-cover wrap">
+              <img src={remote.image} alt={remote.title} />
+            </figure>
+          ) : null}
         </header>
         <div className="wrap article-read">
-          <div className="prose" dangerouslySetInnerHTML={{ __html: remote.bodyHtml || '' }} />
+          <div className="prose prose-html" dangerouslySetInnerHTML={{ __html: remote.bodyHtml || '' }} />
         </div>
       </article>
     );

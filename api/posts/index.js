@@ -11,7 +11,7 @@ import { articlePath } from "../../lib/site-config.js";
 import { appendPublishedPost, listPublishedPosts, StorageError } from "../../lib/posts-store.js";
 
 /**
- * Same publish contract as AJiusBlog.
+ * AffiliAds publish contract.
  * POST /api/posts with Authorization: Bearer <PUBLISH_TOKEN>
  * GET /api/posts is public.
  *

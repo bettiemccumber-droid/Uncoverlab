@@ -30,7 +30,7 @@ export default function Blog() {
             slug: post.slug,
             title: post.title,
             excerpt: post.excerpt || '',
-            category: post.category || 'Reviews',
+            category: post.category || 'Product Reviews',
             tags: Array.isArray(post.keywords) ? post.keywords : [],
             date: post.date,
             author: { name: post.author || 'UncoverLab', role: 'Editor' },
